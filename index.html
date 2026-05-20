@@ -76,8 +76,10 @@
     .dname { font-size:14px; font-weight:500; }
     .dmeta { font-size:11px; color:var(--muted); margin-top:2px; }
     .dtime { font-size:11px; color:var(--muted); white-space:nowrap; }
-    .xbtn { background:none; border:none; color:var(--red); font-size:15px; cursor:pointer; padding:4px 6px; opacity:.5; transition:opacity .2s; }
-    .xbtn:hover { opacity:1; }
+    .xbtn  { background:none; border:none; color:var(--red);   font-size:15px; cursor:pointer; padding:4px 5px; opacity:.5; transition:opacity .2s; }
+    .xbtn:hover  { opacity:1; }
+    .ebtn2 { background:none; border:none; color:var(--muted); font-size:14px; cursor:pointer; padding:4px 5px; opacity:.6; transition:opacity .2s; }
+    .ebtn2:hover { opacity:1; color:var(--acc2); }
 
     /* empty */
     .empty { text-align:center; padding:36px 20px; color:var(--muted); }
@@ -137,6 +139,21 @@
     .b-outline { background:var(--surf2); color:var(--text); border:1px solid var(--border); }
     .b-red { background:rgba(239,68,68,.1); color:var(--red); border:1px solid rgba(239,68,68,.25); }
 
+    /* sync badge */
+    .sync-badge { font-size:11px; font-weight:600; padding:4px 10px; border-radius:10px; background:var(--surf2); border:1px solid var(--border); color:var(--muted); transition:all .3s; }
+    .sync-badge.ok  { color:var(--green); border-color:rgba(34,197,94,.3); }
+    .sync-badge.err { color:var(--red);   border-color:rgba(239,68,68,.3); }
+    .sync-badge.ing { color:var(--amber); border-color:rgba(245,158,11,.3); }
+
+    /* gh token input row */
+    .gh-row { padding:14px 15px; display:flex; flex-direction:column; gap:10px; }
+    .gh-input-row { display:flex; gap:8px; }
+    .gh-input { flex:1; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:8px 11px; color:var(--text); font-size:13px; font-family:monospace; }
+    .gh-input:focus { outline:none; border-color:var(--acc); }
+    .gh-btn { padding:8px 14px; border-radius:9px; border:none; background:var(--acc); color:#fff; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+    .gh-btn:active { opacity:.8; }
+    .gh-status { font-size:12px; color:var(--muted); min-height:16px; }
+
     /* modal */
     .ov { position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:flex-end; z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
     .ov.open { opacity:1; pointer-events:all; }
@@ -164,7 +181,10 @@
 
   <header class="hdr">
     <div class="hdr-title">🍺 DrinkTracker</div>
-    <div class="hdr-bac ok" id="hdr-bac">BAC 0.000%</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="sync-badge" id="sync-badge" style="display:none"></div>
+      <div class="hdr-bac ok" id="hdr-bac">BAC 0.000%</div>
+    </div>
   </header>
 
   <div class="content">
@@ -242,9 +262,9 @@
         </div>
       </div>
       <div class="leg">
-        <span class="li">🟢 &lt;0.05% — Feeling it</span>
-        <span class="li">🟡 0.05–0.08% — Caution</span>
-        <span class="li">🔴 ≥0.08% — Over limit</span>
+        <span class="li">🟢 &lt;0.04% — Feeling it</span>
+        <span class="li">🟡 0.04–0.05% — Caution</span>
+        <span class="li">🔴 ≥0.05% — Over BC limit</span>
         <span class="li" style="margin-left:auto">Widmark formula</span>
       </div>
     </div>
@@ -374,6 +394,25 @@
         </div>
       </div>
 
+      <div class="slabel">GitHub Auto-Backup</div>
+      <div class="scard">
+        <div class="gh-row">
+          <div>
+            <div class="sl2">Personal Access Token</div>
+            <div class="ss">Commits data.json to udon-nao/drink-tracker on every change. Paste token once — data restores automatically if localStorage is ever cleared.</div>
+          </div>
+          <div class="gh-input-row">
+            <input type="password" class="gh-input" id="s-ghtoken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+            <button class="gh-btn" onclick="saveGhToken()">Save</button>
+          </div>
+          <div class="gh-status" id="gh-status">No token set — data stored locally only</div>
+        </div>
+        <div class="sr" style="padding:10px 15px">
+          <div class="ss">Last backup</div>
+          <div class="ss" id="gh-last-sync">—</div>
+        </div>
+      </div>
+
       <div class="slabel">Data</div>
       <button class="bblock b-outline" onclick="exportJSON()">📤 Export All Data (JSON)</button>
       <button class="bblock b-outline" onclick="exportCSV()">📊 Export as CSV</button>
@@ -412,6 +451,25 @@
     <div class="macts">
       <button class="mcancel"  onclick="closeModal()">Cancel</button>
       <button class="mconfirm" onclick="addCustom()">Add Drink</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit drink time modal -->
+<div class="ov" id="edit-ov" onclick="maybeCloseEdit(event)">
+  <div class="modal">
+    <div class="mtitle">✏️ Edit — <span id="edit-drink-name" style="color:var(--muted)"></span></div>
+    <div class="mf">
+      <label>Date</label>
+      <input type="date" id="edit-date">
+    </div>
+    <div class="mf">
+      <label>Time (30-min slots)</label>
+      <select id="edit-time"></select>
+    </div>
+    <div class="macts">
+      <button class="mcancel"  onclick="closeEditModal()">Cancel</button>
+      <button class="mconfirm" onclick="saveEditDrink()">Save</button>
     </div>
   </div>
 </div>
@@ -518,9 +576,10 @@ function updateHero() {
   const eta   = document.getElementById('eta');
 
   hdr.textContent = 'BAC ' + str + '%';
-  hdr.className   = 'hdr-bac ' + (bac >= .08 ? 'over' : bac >= .05 ? 'warn' : 'ok');
-  badge.className = 'badge ' + (bac >= .08 ? 'b-over' : bac >= .05 ? 'b-warn' : 'b-ok');
-  badge.textContent = bac < .005 ? 'Sober' : bac < .05 ? 'Feeling it' : bac < .08 ? '⚠️ Approaching limit' : '🔴 Over legal limit';
+  /* BC thresholds: warn ≥0.04, over BC limit ≥0.05 */
+  hdr.className   = 'hdr-bac ' + (bac >= .05 ? 'over' : bac >= .04 ? 'warn' : 'ok');
+  badge.className = 'badge '   + (bac >= .05 ? 'b-over' : bac >= .04 ? 'b-warn' : 'b-ok');
+  badge.textContent = bac < .005 ? 'Sober' : bac < .04 ? 'Feeling it' : bac < .05 ? '⚠️ Approaching BC limit' : '🔴 Over BC limit (0.05%)';
 
   const sb = soberAt();
   if (sb) {
@@ -578,10 +637,11 @@ function updateTodayList() {
       <div class="dri">${d.icon}</div>
       <div class="dinfo">
         <div class="dname">${d.name}</div>
-        <div class="dmeta">${d.vol}ml · ${d.abv}% · ${pureAlcohol(d).toFixed(1)}g alcohol · ${Math.round(kcal(d))} kcal</div>
+        <div class="dmeta">${d.vol}ml · ${d.abv}% · ${pureAlcohol(d).toFixed(1)}g · ${Math.round(kcal(d))} kcal</div>
       </div>
       <div class="dtime">${fmt(new Date(d.timestamp))}</div>
-      <button class="xbtn" onclick="del('${d.id}')">✕</button>
+      <button class="ebtn2" onclick="editDrink('${d.id}')">✏️</button>
+      <button class="xbtn"  onclick="del('${d.id}')">✕</button>
     </div>`).join('');
 }
 
@@ -620,7 +680,7 @@ function updateGraph() {
       labels,
       datasets: [
         { label:'BAC %', data:vals, borderColor:'#818cf8', backgroundColor:'rgba(129,140,248,.15)', borderWidth:2.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
-        { label:'Legal limit (0.08%)', data:labels.map(()=>0.08), borderColor:'#ef4444', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false }
+        { label:'BC limit (0.05%)', data:labels.map(()=>0.05), borderColor:'#ef4444', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false }
       ]
     },
     options: {
@@ -629,7 +689,7 @@ function updateGraph() {
       plugins: {
         legend:{ labels:{ color:'#8892a4', boxWidth:12, font:{ size:11 } } },
         tooltip:{ backgroundColor:'#1f2438', borderColor:'#252a3d', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#8892a4',
-          callbacks:{ label: c => c.datasetIndex===0 ? ` BAC: ${c.raw.toFixed(3)}%` : ` Legal limit: 0.080%` } }
+          callbacks:{ label: c => c.datasetIndex===0 ? ` BAC: ${c.raw.toFixed(3)}%` : ` BC limit: 0.050%` } }
       },
       scales: {
         x:{ grid:{ color:'rgba(37,42,61,.8)' }, ticks:{ color:'#8892a4', font:{ size:10 }, maxTicksLimit:7 } },
@@ -790,7 +850,8 @@ function updateHistory() {
           <div class="dmeta">${d.vol}ml · ${d.abv}% · ${pureAlcohol(d).toFixed(1)}g</div>
         </div>
         <div class="dtime">${fmt(new Date(d.timestamp))}</div>
-        <button class="xbtn" onclick="del('${d.id}')">✕</button>
+        <button class="ebtn2" onclick="editDrink('${d.id}')">✏️</button>
+        <button class="xbtn"  onclick="del('${d.id}')">✕</button>
       </div>`).join('');
     html += '</div>';
   }
@@ -826,7 +887,7 @@ function quickAdd(type) {
   const def = DRINKS[type];
   const abv = def.abvKey ? parseFloat(S.settings[def.abvKey]) : 5;
   S.drinks.push({ id:uid(), type, name:def.name, icon:def.icon, vol:def.vol, abv, timestamp:new Date().toISOString() });
-  save(); refreshLog();
+  save(); scheduleSync(); refreshLog();
   toast(`${def.icon} ${def.name} added!`);
 }
 
@@ -838,22 +899,22 @@ function addCustom() {
   if (!vol||vol<=0||isNaN(abv)||abv<0) { toast('Enter valid volume & ABV'); return; }
   const def = DRINKS[type]||DRINKS.custom;
   S.drinks.push({ id:uid(), type, name, icon:def.icon, vol, abv, timestamp:new Date().toISOString() });
-  save(); closeModal(); refreshLog();
+  save(); scheduleSync(); closeModal(); refreshLog();
   toast(`${def.icon} ${name} added!`);
 }
 
 function del(id) {
   S.drinks = S.drinks.filter(d => d.id!==id);
-  save(); refreshLog(); updateHistory();
+  save(); scheduleSync(); refreshLog(); updateHistory();
   toast('Drink removed');
 }
 
-function setSetting(k, v) { S.settings[k]=v; save(); updateSettingsUI(); refreshLog(); }
-function setSex(s) { S.settings.sex=s; save(); updateSettingsUI(); updateHero(); }
+function setSetting(k, v) { S.settings[k]=v; save(); scheduleSync(); updateSettingsUI(); refreshLog(); }
+function setSex(s) { S.settings.sex=s; save(); scheduleSync(); updateSettingsUI(); updateHero(); }
 
 function clearAll() {
   if (!confirm('Delete ALL drink history? This cannot be undone.')) return;
-  S.drinks=[]; save(); refreshLog(); updateHistory();
+  S.drinks=[]; save(); scheduleSync(); refreshLog(); updateHistory();
   toast('All data cleared');
 }
 
@@ -913,10 +974,207 @@ function uid() { return Date.now().toString(36)+Math.random().toString(36).slice
 function fmt(d){ return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
 
 /* ════════════════════════════════════
+   GITHUB BACKUP
+════════════════════════════════════ */
+const GH_TOKEN_KEY = 'dt_ghtoken';
+const GH_REPO      = 'udon-nao/drink-tracker';
+const GH_FILE      = 'data.json';
+const GH_API       = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
+
+let ghToken   = localStorage.getItem(GH_TOKEN_KEY) || '';
+let ghSha     = null;   // SHA of current data.json — required by GitHub API for updates
+let syncTimer = null;   // debounce handle
+
+function setSyncBadge(state, text) {
+  const el = document.getElementById('sync-badge');
+  if (!ghToken) { el.style.display='none'; return; }
+  el.style.display = 'block';
+  el.className = 'sync-badge ' + (state||'');
+  el.textContent = text;
+}
+
+async function ghLoad() {
+  if (!ghToken) return false;
+  setSyncBadge('ing', '↑ Loading…');
+  try {
+    const res = await fetch(GH_API, {
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (res.status === 404) { setSyncBadge('', '☁ Ready'); return false; } // file doesn't exist yet
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    ghSha = json.sha;
+    const data = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
+    if (data.drinks)   S.drinks   = data.drinks;
+    if (data.settings) S.settings = { ...DEFAULTS, ...data.settings };
+    save();
+    setSyncBadge('ok', '✓ Restored');
+    setGhStatusUI(`Loaded from GitHub — ${S.drinks.length} drinks restored`);
+    return true;
+  } catch(e) {
+    setSyncBadge('err', '✕ Error');
+    setGhStatusUI('Could not load from GitHub: ' + e.message);
+    return false;
+  }
+}
+
+async function ghSave() {
+  if (!ghToken) return;
+  setSyncBadge('ing', '↑ Saving…');
+  try {
+    const payload = JSON.stringify(S, null, 2);
+    /* btoa needs latin1 — encode UTF-8 first */
+    const content = btoa(unescape(encodeURIComponent(payload)));
+    const body = {
+      message: `DrinkTracker sync ${new Date().toISOString().slice(0,16).replace('T',' ')}`,
+      content,
+      ...(ghSha ? { sha: ghSha } : {})
+    };
+    const res = await fetch(GH_API, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${ghToken}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    ghSha = json.content.sha;
+    const t = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    setSyncBadge('ok', '✓ Saved');
+    setGhStatusUI('Backed up at ' + t);
+    document.getElementById('gh-last-sync').textContent = t;
+  } catch(e) {
+    setSyncBadge('err', '✕ Failed');
+    setGhStatusUI('Backup failed: ' + (e.message==='401'?'invalid token':e.message==='403'?'token lacks repo scope':e.message));
+  }
+}
+
+/* Daily backup — only commits to GitHub once per calendar day */
+const GH_SYNC_DATE_KEY = 'dt_last_gh_sync';
+
+function scheduleSync() {
+  /* Always persist to localStorage immediately (sync) */
+  /* GitHub commit: debounce 3s, then only if not yet synced today */
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    const today = new Date().toDateString();
+    if (localStorage.getItem(GH_SYNC_DATE_KEY) !== today) {
+      ghSave().then(() => localStorage.setItem(GH_SYNC_DATE_KEY, today));
+    }
+  }, 3000);
+}
+
+/* ════════════════════════════════════
+   EDIT DRINK TIME
+════════════════════════════════════ */
+let editingId = null;
+
+function populateTimeSlots() {
+  const sel = document.getElementById('edit-time');
+  sel.innerHTML = '';
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      const h12  = h % 12 || 12;
+      const ampm = h < 12 ? 'AM' : 'PM';
+      const opt  = document.createElement('option');
+      opt.value       = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      opt.textContent = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+      sel.appendChild(opt);
+    }
+  }
+}
+
+function editDrink(id) {
+  const d = S.drinks.find(x => x.id === id);
+  if (!d) return;
+  editingId = id;
+
+  const dt = new Date(d.timestamp);
+
+  /* Date field */
+  document.getElementById('edit-date').value = dt.toISOString().slice(0,10);
+
+  /* Round to nearest 30-min slot */
+  const rawMin  = dt.getMinutes();
+  const roundM  = Math.round(rawMin / 30) * 30;
+  const slotH   = roundM === 60 ? (dt.getHours() + 1) % 24 : dt.getHours();
+  const slotM   = roundM === 60 ? 0 : roundM;
+  document.getElementById('edit-time').value =
+    `${String(slotH).padStart(2,'0')}:${String(slotM).padStart(2,'0')}`;
+
+  document.getElementById('edit-drink-name').textContent = d.name;
+  document.getElementById('edit-ov').classList.add('open');
+}
+
+function saveEditDrink() {
+  const d = S.drinks.find(x => x.id === editingId);
+  if (!d) { closeEditModal(); return; }
+
+  const dateVal = document.getElementById('edit-date').value;
+  const timeVal = document.getElementById('edit-time').value;
+  if (!dateVal || !timeVal) return;
+
+  const [yr, mo, dy] = dateVal.split('-').map(Number);
+  const [hh, mm]     = timeVal.split(':').map(Number);
+  d.timestamp = new Date(yr, mo - 1, dy, hh, mm, 0).toISOString();
+
+  save(); scheduleSync(); refreshLog(); updateHistory();
+  closeEditModal();
+  toast('Time updated');
+}
+
+function closeEditModal()    { document.getElementById('edit-ov').classList.remove('open'); editingId = null; }
+function maybeCloseEdit(e)   { if (e.target.id === 'edit-ov') closeEditModal(); }
+
+function setGhStatusUI(msg) {
+  const el = document.getElementById('gh-status');
+  if (el) el.textContent = msg;
+}
+
+function saveGhToken() {
+  const input = document.getElementById('s-ghtoken');
+  const token = (input.value || '').trim();
+  if (!token) { setGhStatusUI('Please paste a token first'); return; }
+  ghToken = token;
+  localStorage.setItem(GH_TOKEN_KEY, ghToken);
+  input.value = '';
+  setGhStatusUI('Token saved — testing connection…');
+  ghLoad().then(ok => { if (!ok) ghSave(); }); // load existing data or create first backup
+}
+
+function updateGhSettingsUI() {
+  if (ghToken) {
+    document.getElementById('gh-status').textContent =
+      document.getElementById('gh-last-sync').textContent !== '—'
+        ? 'Token active — auto-backup on'
+        : 'Token active — will sync on next change';
+    document.getElementById('s-ghtoken').placeholder = '●●●●●●●●●●●● (token saved)';
+  }
+}
+
+/* ════════════════════════════════════
    INIT
 ════════════════════════════════════ */
 load();
 refreshLog();
+populateTimeSlots();
+updateGhSettingsUI();
+
+/* On startup: load from GitHub (restores data if localStorage was wiped),
+   then do today's backup if not yet done today */
+if (ghToken) {
+  ghLoad().then(loaded => {
+    if (loaded) refreshLog();
+    const today = new Date().toDateString();
+    if (localStorage.getItem(GH_SYNC_DATE_KEY) !== today) {
+      ghSave().then(() => localStorage.setItem(GH_SYNC_DATE_KEY, today));
+    }
+  });
+}
+
 setInterval(updateHero, 60000);
 </script>
 </body>
