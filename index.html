@@ -26,22 +26,22 @@
     .content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
     .content::-webkit-scrollbar { width:3px; }
     .content::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-    .tab { display:none; padding:18px 14px 40px; }
+    .tab { display:none; padding:16px 14px 40px; }
     .tab.active { display:block; }
 
-    /* bottom nav */
+    /* bottom nav — taller touch targets, bigger icons */
     .bnav { display:flex; background:var(--surf); border-top:1px solid var(--border); flex-shrink:0; padding-bottom:env(safe-area-inset-bottom,0); }
-    .nb { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 4px; border:none; background:none; color:var(--muted); font-size:10px; font-weight:600; cursor:pointer; transition:color .2s; -webkit-tap-highlight-color:transparent; }
-    .nb .ni { font-size:20px; line-height:1; }
+    .nb { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:12px 4px 10px; border:none; background:none; color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; transition:color .2s; -webkit-tap-highlight-color:transparent; }
+    .nb .ni { font-size:22px; line-height:1; }
     .nb.active { color:var(--acc2); }
 
     /* shared */
-    .slabel { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+    .slabel { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
     .card { background:var(--surf); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
 
-    /* BAC hero */
-    .hero { background:linear-gradient(145deg,var(--surf),var(--surf2)); border:1px solid var(--border); border-radius:20px; padding:24px 18px 18px; text-align:center; margin-bottom:14px; }
-    .bac-num { font-size:58px; font-weight:900; line-height:1; letter-spacing:-2px; }
+    /* BAC hero — tighter on mobile */
+    .hero { background:linear-gradient(145deg,var(--surf),var(--surf2)); border:1px solid var(--border); border-radius:20px; padding:16px 18px 14px; text-align:center; margin-bottom:10px; }
+    .bac-num { font-size:48px; font-weight:900; line-height:1; letter-spacing:-2px; }
     .bac-pct { font-size:20px; font-weight:400; color:var(--muted); letter-spacing:0; }
     .bac-sub { font-size:12px; color:var(--muted); margin:4px 0 11px; }
     .badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:13px; font-weight:700; margin-bottom:10px; }
@@ -50,35 +50,42 @@
     .b-over { background:rgba(239,68,68,.12);  color:var(--red);   }
     .eta { font-size:13px; color:var(--muted); min-height:18px; }
 
-    /* ── TODAY STATS ROW (log tab) ── */
-    .log-stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
-    .lsc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:12px 14px; }
+    /* TODAY STATS ROW (log tab) */
+    .log-stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:12px; }
+    .lsc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:10px 12px; }
     .lsc-label { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-    .lsc-val { font-size:22px; font-weight:800; color:var(--acc2); }
+    .lsc-val { font-size:20px; font-weight:800; color:var(--acc2); }
     .lsc-unit { font-size:12px; font-weight:400; color:var(--muted); }
     .lsc-bar { height:4px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
     .lsc-fill { height:100%; border-radius:2px; transition:width .4s; }
 
+    /* date context bar */
+    .dcbar { position:relative; display:flex; align-items:center; justify-content:space-between; background:var(--surf); border:1px solid var(--border); border-radius:12px; padding:11px 14px; margin-bottom:12px; -webkit-tap-highlight-color:transparent; }
+    .dcbar-text { font-size:13px; font-weight:600; color:var(--text); pointer-events:none; }
+    .dcbar-hint { font-size:11px; color:var(--muted); pointer-events:none; }
+    .dcbar-x { background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:4px 6px; line-height:1; position:relative; z-index:2; }
+    .dcbar-inp { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; font-size:16px; }
+
     /* drink grid — 3 cols */
-    .dgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:20px; }
-    .dc { background:var(--surf); border:1px solid var(--border); border-radius:14px; padding:14px 10px 12px; cursor:pointer; text-align:center; position:relative; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; }
+    .dgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:14px; }
+    .dc { background:var(--surf); border:1px solid var(--border); border-radius:14px; padding:16px 10px 14px; cursor:pointer; text-align:center; position:relative; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; }
     .dc:active { transform:scale(.95); background:var(--surf2); }
     .di { font-size:26px; display:block; margin-bottom:6px; line-height:1; }
-    .dn { font-size:13px; font-weight:700; }
-    .dm { font-size:11px; color:var(--muted); margin-top:2px; }
+    .dn { font-size:14px; font-weight:700; }
+    .dm { font-size:12px; color:var(--muted); margin-top:2px; }
     .plus { position:absolute; top:10px; right:10px; width:22px; height:22px; background:var(--acc); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; line-height:1; }
 
-    /* drink rows */
-    .drow { display:flex; align-items:center; gap:11px; padding:12px 13px; border-bottom:1px solid var(--border); }
+    /* drink rows — larger touch targets */
+    .drow { display:flex; align-items:center; gap:11px; padding:13px 14px; border-bottom:1px solid var(--border); }
     .drow:last-child { border-bottom:none; }
     .dri { font-size:20px; min-width:26px; text-align:center; }
     .dinfo { flex:1; }
-    .dname { font-size:14px; font-weight:500; }
-    .dmeta { font-size:11px; color:var(--muted); margin-top:2px; }
-    .dtime { font-size:11px; color:var(--muted); white-space:nowrap; }
-    .xbtn  { background:none; border:none; color:var(--red);   font-size:15px; cursor:pointer; padding:4px 5px; opacity:.5; transition:opacity .2s; }
+    .dname { font-size:15px; font-weight:500; }
+    .dmeta { font-size:12px; color:var(--muted); margin-top:2px; }
+    .dtime { font-size:12px; color:var(--muted); white-space:nowrap; }
+    .xbtn  { background:none; border:none; color:var(--red);   font-size:15px; cursor:pointer; padding:8px 8px; opacity:.5; transition:opacity .2s; }
     .xbtn:hover  { opacity:1; }
-    .ebtn2 { background:none; border:none; color:var(--muted); font-size:14px; cursor:pointer; padding:4px 5px; opacity:.6; transition:opacity .2s; }
+    .ebtn2 { background:none; border:none; color:var(--muted); font-size:14px; cursor:pointer; padding:8px 8px; opacity:.6; transition:opacity .2s; }
     .ebtn2:hover { opacity:1; color:var(--acc2); }
 
     /* empty */
@@ -129,7 +136,7 @@
     .sr:last-child { border-bottom:none; }
     .sl2 { font-size:15px; font-weight:500; }
     .ss  { font-size:12px; color:var(--muted); margin-top:2px; }
-    .sinput { width:75px; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:7px 9px; color:var(--text); font-size:14px; text-align:right; }
+    .sinput { width:75px; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:7px 9px; color:var(--text); font-size:16px; text-align:right; }
     .sinput:focus { outline:none; border-color:var(--acc); }
     .ulbl { font-size:13px; color:var(--muted); }
     .tg { display:flex; background:var(--surf2); border-radius:9px; padding:2px; }
@@ -148,31 +155,32 @@
     /* gh token input row */
     .gh-row { padding:14px 15px; display:flex; flex-direction:column; gap:10px; }
     .gh-input-row { display:flex; gap:8px; }
-    .gh-input { flex:1; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:8px 11px; color:var(--text); font-size:13px; font-family:monospace; }
+    .gh-input { flex:1; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:8px 11px; color:var(--text); font-size:16px; font-family:monospace; }
     .gh-input:focus { outline:none; border-color:var(--acc); }
     .gh-btn { padding:8px 14px; border-radius:9px; border:none; background:var(--acc); color:#fff; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
     .gh-btn:active { opacity:.8; }
     .gh-status { font-size:12px; color:var(--muted); min-height:16px; }
 
-    /* modal */
+    /* modal — safe-area padding at bottom */
     .ov { position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:flex-end; z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
     .ov.open { opacity:1; pointer-events:all; }
-    .modal { width:100%; max-width:500px; margin:0 auto; background:var(--surf); border:1px solid var(--border); border-radius:22px 22px 0 0; padding:22px 18px 30px; transform:translateY(110%); transition:transform .3s cubic-bezier(.32,1,.23,1); }
+    .modal { width:100%; max-width:500px; margin:0 auto; background:var(--surf); border:1px solid var(--border); border-radius:22px 22px 0 0; padding:22px 18px calc(env(safe-area-inset-bottom,0px) + 28px); transform:translateY(110%); transition:transform .3s cubic-bezier(.32,1,.23,1); }
     .ov.open .modal { transform:translateY(0); }
     .mtitle { font-size:17px; font-weight:800; margin-bottom:18px; }
     .mf { margin-bottom:14px; }
     .mf label { display:block; font-size:11px; color:var(--muted); margin-bottom:5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
-    .mf input,.mf select { width:100%; background:var(--surf2); border:1px solid var(--border); border-radius:11px; padding:12px 13px; color:var(--text); font-size:15px; }
+    /* font-size 16px prevents iOS Safari auto-zoom */
+    .mf input,.mf select { width:100%; background:var(--surf2); border:1px solid var(--border); border-radius:11px; padding:12px 13px; color:var(--text); font-size:16px; }
     .mf input:focus,.mf select:focus { outline:none; border-color:var(--acc); }
     .mf select option { background:var(--surf2); }
     .mfrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .macts { display:flex; gap:10px; margin-top:18px; }
-    .macts button { flex:1; padding:13px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; }
+    .macts button { flex:1; padding:15px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; }
     .mcancel  { background:var(--surf2); color:var(--text); border:1px solid var(--border) !important; }
     .mconfirm { background:var(--acc); color:#fff; }
 
-    /* toast */
-    .toast { position:fixed; bottom:85px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--surf2); border:1px solid var(--border); border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600; z-index:100; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; white-space:nowrap; }
+    /* toast — above nav bar, safe-area aware */
+    .toast { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 72px); left:50%; transform:translateX(-50%) translateY(16px); background:var(--surf2); border:1px solid var(--border); border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600; z-index:100; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; white-space:nowrap; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -205,15 +213,23 @@
       <!-- Today: Alcohol + Calories summary -->
       <div class="log-stats">
         <div class="lsc">
-          <div class="lsc-label">🧪 Alcohol today</div>
+          <div class="lsc-label">🧪 Alcohol</div>
           <div class="lsc-val"><span id="ls-alc">0</span><span class="lsc-unit">g</span></div>
           <div class="lsc-bar"><div class="lsc-fill" id="ls-alc-bar" style="width:0%;background:var(--acc2)"></div></div>
         </div>
         <div class="lsc">
-          <div class="lsc-label">🔥 Calories today</div>
+          <div class="lsc-label">🔥 Calories</div>
           <div class="lsc-val"><span id="ls-cal">0</span><span class="lsc-unit"> kcal</span></div>
           <div class="lsc-bar"><div class="lsc-fill" id="ls-cal-bar" style="width:0%;background:var(--amber)"></div></div>
         </div>
+      </div>
+
+      <!-- Date context bar — tap to log for a different day -->
+      <div class="dcbar" id="dcbar">
+        <span class="dcbar-text" id="dcbar-text">📅 Today</span>
+        <span class="dcbar-hint" id="dcbar-hint">tap to change</span>
+        <button class="dcbar-x" id="dcbar-x" onclick="clearLogDate(event)" style="display:none" aria-label="Reset to today">✕</button>
+        <input type="date" class="dcbar-inp" id="dcbar-inp" onchange="setLogDate(this.value)" aria-label="Log date">
       </div>
 
       <!-- Quick add -->
@@ -239,7 +255,7 @@
         </button>
       </div>
 
-      <div class="slabel">Today's Session</div>
+      <div class="slabel" id="session-label">Today's Session</div>
       <div class="card" id="today-list">
         <div class="empty"><div class="ei">🥤</div><p>No drinks logged yet today</p></div>
       </div>
@@ -493,6 +509,9 @@ let bacChart  = null;
 let histChart = null;
 let histPeriod = 'weekly';
 
+/* Active log date — null means "today" */
+let activeLogDate = null;
+
 /* ════════════════════════════════════
    DRINK CATALOGUE
 ════════════════════════════════════ */
@@ -555,11 +574,59 @@ function soberAt() {
   return new Date(now + hi * 3600000);
 }
 
+/* Returns start/end of a calendar day */
+function getDayBounds(date) {
+  const s = new Date(date); s.setHours(0, 0, 0, 0);
+  const e = new Date(date); e.setHours(23, 59, 59, 999);
+  return { s, e };
+}
+
 /* drinks in a calendar day */
 function drinksOnDay(date) {
-  const s = new Date(date); s.setHours(0,0,0,0);
-  const e = new Date(date); e.setHours(23,59,59,999);
+  const { s, e } = getDayBounds(date);
   return S.drinks.filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; });
+}
+
+/* Timestamp to use when logging a drink — uses activeLogDate if set */
+function getLogTimestamp() {
+  if (!activeLogDate) return new Date().toISOString();
+  const now = new Date();
+  return new Date(
+    activeLogDate.getFullYear(),
+    activeLogDate.getMonth(),
+    activeLogDate.getDate(),
+    now.getHours(), now.getMinutes(), now.getSeconds()
+  ).toISOString();
+}
+
+/* ════════════════════════════════════
+   DATE CONTEXT BAR
+════════════════════════════════════ */
+function setLogDate(val) {
+  if (!val) { clearLogDate(); return; }
+  const [yr, mo, dy] = val.split('-').map(Number);
+  activeLogDate = new Date(yr, mo - 1, dy);
+
+  const label = activeLogDate.toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' });
+  document.getElementById('dcbar-text').textContent = `📅 ${label}`;
+  document.getElementById('dcbar-hint').style.display = 'none';
+  document.getElementById('dcbar-x').style.display = '';
+  document.getElementById('session-label').textContent = `${label}'s Session`;
+
+  updateTodayList();
+  updateLogStats();
+}
+
+function clearLogDate(e) {
+  if (e) e.stopPropagation();
+  activeLogDate = null;
+  document.getElementById('dcbar-text').textContent = '📅 Today';
+  document.getElementById('dcbar-hint').style.display = '';
+  document.getElementById('dcbar-x').style.display = 'none';
+  document.getElementById('dcbar-inp').value = '';
+  document.getElementById('session-label').textContent = "Today's Session";
+  updateTodayList();
+  updateLogStats();
 }
 
 /* ════════════════════════════════════
@@ -596,11 +663,12 @@ function updateHero() {
    LOG TAB — ALCOHOL & CALORIES STATS
 ════════════════════════════════════ */
 function updateLogStats() {
-  const midnight = new Date(); midnight.setHours(0,0,0,0);
-  const today = S.drinks.filter(d => new Date(d.timestamp) >= midnight);
+  const refDate = activeLogDate || new Date();
+  const { s, e } = getDayBounds(refDate);
+  const dayDrinks = S.drinks.filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; });
 
-  const totalAlc = today.reduce((s, d) => s + pureAlcohol(d), 0);
-  const totalCal = today.reduce((s, d) => s + kcal(d), 0);
+  const totalAlc = dayDrinks.reduce((acc, d) => acc + pureAlcohol(d), 0);
+  const totalCal = dayDrinks.reduce((acc, d) => acc + kcal(d), 0);
 
   /* daily target reference (weekly ÷ 7) */
   const dailyAlcRef = weeklyTarget() / 7;
@@ -621,18 +689,22 @@ function updateLogStats() {
 }
 
 /* ════════════════════════════════════
-   LOG TAB — TODAY LIST
+   LOG TAB — SESSION LIST
 ════════════════════════════════════ */
 function updateTodayList() {
-  const midnight = new Date(); midnight.setHours(0,0,0,0);
-  const today = S.drinks.filter(d => new Date(d.timestamp) >= midnight)
-                         .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const refDate = activeLogDate || new Date();
+  const { s, e } = getDayBounds(refDate);
+  const dayDrinks = S.drinks
+    .filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; })
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
   const el = document.getElementById('today-list');
-  if (!today.length) {
-    el.innerHTML = '<div class="empty"><div class="ei">🥤</div><p>No drinks logged yet today</p></div>';
+  const emptyMsg = activeLogDate ? 'No drinks logged on this day' : 'No drinks logged yet today';
+  if (!dayDrinks.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">🥤</div><p>${emptyMsg}</p></div>`;
     return;
   }
-  el.innerHTML = today.map(d => `
+  el.innerHTML = dayDrinks.map(d => `
     <div class="drow">
       <div class="dri">${d.icon}</div>
       <div class="dinfo">
@@ -886,7 +958,7 @@ function updateSettingsUI() {
 function quickAdd(type) {
   const def = DRINKS[type];
   const abv = def.abvKey ? parseFloat(S.settings[def.abvKey]) : 5;
-  S.drinks.push({ id:uid(), type, name:def.name, icon:def.icon, vol:def.vol, abv, timestamp:new Date().toISOString() });
+  S.drinks.push({ id:uid(), type, name:def.name, icon:def.icon, vol:def.vol, abv, timestamp:getLogTimestamp() });
   save(); scheduleSync(); refreshLog();
   toast(`${def.icon} ${def.name} added!`);
 }
@@ -898,7 +970,7 @@ function addCustom() {
   const abv  = parseFloat(document.getElementById('c-abv').value);
   if (!vol||vol<=0||isNaN(abv)||abv<0) { toast('Enter valid volume & ABV'); return; }
   const def = DRINKS[type]||DRINKS.custom;
-  S.drinks.push({ id:uid(), type, name, icon:def.icon, vol, abv, timestamp:new Date().toISOString() });
+  S.drinks.push({ id:uid(), type, name, icon:def.icon, vol, abv, timestamp:getLogTimestamp() });
   save(); scheduleSync(); closeModal(); refreshLog();
   toast(`${def.icon} ${name} added!`);
 }
