@@ -4,23 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>DrinkTracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
-      --bg:     #0d0f1a; --surf:  #161926; --surf2: #1f2438;
-      --acc:    #6366f1; --acc2:  #818cf8;
-      --text:   #e2e8f0; --muted: #8892a4; --border: #252a3d;
-      --red:    #ef4444; --green: #22c55e; --amber: #f59e0b;
+      --bg:     #f4f6fb;
+      --surf:   #ffffff;
+      --surf2:  #eef1f8;
+      --acc:    #6366f1;
+      --acc2:   #4f52d6;
+      --text:   #1a1d2e;
+      --muted:  #7c84a2;
+      --border: #e2e6f2;
+      --red:    #ef4444;
+      --green:  #16a34a;
+      --amber:  #d97706;
+      --shadow: 0 1px 4px rgba(0,0,0,.07);
     }
     html,body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
     #app { display:flex; flex-direction:column; height:100%; max-width:500px; margin:0 auto; }
 
     /* header */
-    .hdr { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; background:var(--surf); border-bottom:1px solid var(--border); flex-shrink:0; }
-    .hdr-title { font-size:17px; font-weight:800; background:linear-gradient(135deg,#818cf8,#c084fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .hdr-bac { font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; background:var(--surf2); border:1px solid var(--border); }
-    .ok { color:var(--green); } .warn { color:var(--amber); } .over { color:var(--red); }
+    .hdr { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; background:var(--surf); border-bottom:1px solid var(--border); flex-shrink:0; box-shadow:var(--shadow); }
+    .hdr-title { font-size:17px; font-weight:800; background:linear-gradient(135deg,#6366f1,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 
     /* scroll */
     .content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
@@ -29,38 +34,27 @@
     .tab { display:none; padding:16px 14px 40px; }
     .tab.active { display:block; }
 
-    /* bottom nav — taller touch targets, bigger icons */
-    .bnav { display:flex; background:var(--surf); border-top:1px solid var(--border); flex-shrink:0; padding-bottom:env(safe-area-inset-bottom,0); }
+    /* bottom nav */
+    .bnav { display:flex; background:var(--surf); border-top:1px solid var(--border); flex-shrink:0; padding-bottom:env(safe-area-inset-bottom,0); box-shadow:0 -1px 4px rgba(0,0,0,.05); }
     .nb { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:12px 4px 10px; border:none; background:none; color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; transition:color .2s; -webkit-tap-highlight-color:transparent; }
     .nb .ni { font-size:22px; line-height:1; }
-    .nb.active { color:var(--acc2); }
+    .nb.active { color:var(--acc); }
 
     /* shared */
     .slabel { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-    .card { background:var(--surf); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .card { background:var(--surf); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); }
 
-    /* BAC hero — tighter on mobile */
-    .hero { background:linear-gradient(145deg,var(--surf),var(--surf2)); border:1px solid var(--border); border-radius:20px; padding:16px 18px 14px; text-align:center; margin-bottom:10px; }
-    .bac-num { font-size:48px; font-weight:900; line-height:1; letter-spacing:-2px; }
-    .bac-pct { font-size:20px; font-weight:400; color:var(--muted); letter-spacing:0; }
-    .bac-sub { font-size:12px; color:var(--muted); margin:4px 0 11px; }
-    .badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:13px; font-weight:700; margin-bottom:10px; }
-    .b-ok   { background:rgba(34,197,94,.12); color:var(--green); }
-    .b-warn { background:rgba(245,158,11,.12); color:var(--amber); }
-    .b-over { background:rgba(239,68,68,.12);  color:var(--red);   }
-    .eta { font-size:13px; color:var(--muted); min-height:18px; }
-
-    /* TODAY STATS ROW (log tab) */
+    /* TODAY STATS ROW */
     .log-stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:12px; }
-    .lsc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:10px 12px; }
+    .lsc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:10px 12px; box-shadow:var(--shadow); }
     .lsc-label { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-    .lsc-val { font-size:20px; font-weight:800; color:var(--acc2); }
+    .lsc-val { font-size:20px; font-weight:800; color:var(--acc); }
     .lsc-unit { font-size:12px; font-weight:400; color:var(--muted); }
     .lsc-bar { height:4px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
     .lsc-fill { height:100%; border-radius:2px; transition:width .4s; }
 
     /* date context bar */
-    .dcbar { position:relative; display:flex; align-items:center; justify-content:space-between; background:var(--surf); border:1px solid var(--border); border-radius:12px; padding:11px 14px; margin-bottom:12px; -webkit-tap-highlight-color:transparent; }
+    .dcbar { position:relative; display:flex; align-items:center; justify-content:space-between; background:var(--surf); border:1px solid var(--border); border-radius:12px; padding:11px 14px; margin-bottom:12px; box-shadow:var(--shadow); -webkit-tap-highlight-color:transparent; }
     .dcbar-text { font-size:13px; font-weight:600; color:var(--text); pointer-events:none; }
     .dcbar-hint { font-size:11px; color:var(--muted); pointer-events:none; }
     .dcbar-x { background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:4px 6px; line-height:1; position:relative; z-index:2; }
@@ -68,14 +62,14 @@
 
     /* drink grid — 3 cols */
     .dgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:14px; }
-    .dc { background:var(--surf); border:1px solid var(--border); border-radius:14px; padding:16px 10px 14px; cursor:pointer; text-align:center; position:relative; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; }
+    .dc { background:var(--surf); border:1px solid var(--border); border-radius:14px; padding:16px 10px 14px; cursor:pointer; text-align:center; position:relative; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; box-shadow:var(--shadow); }
     .dc:active { transform:scale(.95); background:var(--surf2); }
     .di { font-size:26px; display:block; margin-bottom:6px; line-height:1; }
     .dn { font-size:14px; font-weight:700; }
     .dm { font-size:12px; color:var(--muted); margin-top:2px; }
     .plus { position:absolute; top:10px; right:10px; width:22px; height:22px; background:var(--acc); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; line-height:1; }
 
-    /* drink rows — larger touch targets */
+    /* drink rows */
     .drow { display:flex; align-items:center; gap:11px; padding:13px 14px; border-bottom:1px solid var(--border); }
     .drow:last-child { border-bottom:none; }
     .dri { font-size:20px; min-width:26px; text-align:center; }
@@ -83,55 +77,58 @@
     .dname { font-size:15px; font-weight:500; }
     .dmeta { font-size:12px; color:var(--muted); margin-top:2px; }
     .dtime { font-size:12px; color:var(--muted); white-space:nowrap; }
-    .xbtn  { background:none; border:none; color:var(--red);   font-size:15px; cursor:pointer; padding:8px 8px; opacity:.5; transition:opacity .2s; }
+    .xbtn  { background:none; border:none; color:var(--red); font-size:15px; cursor:pointer; padding:8px 8px; opacity:.5; transition:opacity .2s; }
     .xbtn:hover  { opacity:1; }
     .ebtn2 { background:none; border:none; color:var(--muted); font-size:14px; cursor:pointer; padding:8px 8px; opacity:.6; transition:opacity .2s; }
-    .ebtn2:hover { opacity:1; color:var(--acc2); }
+    .ebtn2:hover { opacity:1; color:var(--acc); }
 
     /* empty */
     .empty { text-align:center; padding:36px 20px; color:var(--muted); }
     .empty .ei { font-size:40px; margin-bottom:10px; }
     .empty p { font-size:14px; }
 
-    /* stats row (graph tab) */
-    .srow { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:16px; }
-    .sc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:13px 8px; text-align:center; }
-    .sv { font-size:20px; font-weight:800; color:var(--acc2); }
-    .sl { font-size:11px; color:var(--muted); margin-top:3px; }
+    /* sober button */
+    .sober-btn { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; padding:15px; border-radius:14px; border:2px solid rgba(22,163,74,.3); background:rgba(22,163,74,.06); color:var(--green); font-size:15px; font-weight:700; cursor:pointer; transition:background .15s,transform .1s,border-color .15s; margin-bottom:14px; -webkit-tap-highlight-color:transparent; box-shadow:var(--shadow); }
+    .sober-btn:active { transform:scale(.97); }
+    .sober-btn.sober-on { background:rgba(22,163,74,.14); border-color:rgba(22,163,74,.6); }
+    .sober-row { display:flex; align-items:center; gap:12px; padding:13px 14px; }
+    .sober-badge { display:flex; align-items:center; gap:8px; background:rgba(22,163,74,.08); border:1px solid rgba(22,163,74,.25); border-radius:10px; padding:9px 14px; color:var(--green); font-size:14px; font-weight:600; width:100%; }
+    .sober-unsign { background:none; border:none; color:rgba(22,163,74,.4); font-size:14px; cursor:pointer; padding:6px 8px; margin-left:auto; transition:color .2s; }
+    .sober-unsign:hover { color:var(--green); }
 
-    /* chart card */
-    .cc { background:var(--surf); border:1px solid var(--border); border-radius:16px; padding:16px 13px 13px; margin-bottom:12px; }
-    .cc-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px; }
-    .cc-title { font-size:15px; font-weight:700; }
-    .cc-total { font-size:18px; font-weight:800; color:var(--acc2); }
-    .cc-sub { font-size:11px; color:var(--muted); margin-bottom:12px; }
-    .chart-wrap { position:relative; height:200px; }
+    /* ── CALENDAR TAB ── */
+    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .cal-month-label { font-size:18px; font-weight:800; color:var(--text); }
+    .cal-nav-btn { background:var(--surf); border:1px solid var(--border); border-radius:10px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; color:var(--muted); transition:all .15s; box-shadow:var(--shadow); -webkit-tap-highlight-color:transparent; }
+    .cal-nav-btn:active { background:var(--surf2); transform:scale(.93); }
 
-    /* legend */
-    .leg { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:11px 13px; display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
-    .li { font-size:11px; color:var(--muted); }
+    .cal-dow { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:4px; }
+    .cal-dow-cell { text-align:center; font-size:11px; font-weight:700; color:var(--muted); padding:4px 0; text-transform:uppercase; letter-spacing:.04em; }
 
-    /* history period toggle */
-    .period-row { display:flex; gap:8px; margin-bottom:14px; }
-    .pb { flex:1; padding:9px; border-radius:10px; border:1px solid var(--border); background:var(--surf); color:var(--muted); font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; text-align:center; }
-    .pb.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; user-select:none; touch-action:pan-y; }
+    .cal-cell { background:var(--surf); border:1px solid var(--border); border-radius:10px; min-height:54px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:default; transition:transform .1s; padding:4px 2px; }
+    .cal-cell.other-month { background:transparent; border-color:transparent; }
+    .cal-cell.is-today { border-color:var(--acc); border-width:2px; }
+    .cal-cell.is-today .cal-day-num { color:var(--acc); font-weight:800; }
+    .cal-cell.is-future { opacity:.45; }
+    .cal-cell.has-drink { background:#fff8f0; border-color:#fde4c0; }
+    .cal-cell.has-sober { background:#f0fdf4; border-color:#bbf7d0; }
+    .cal-day-num { font-size:12px; font-weight:600; color:var(--muted); line-height:1; }
+    .cal-day-val { font-size:13px; font-weight:800; line-height:1; }
+    .cal-day-val.light  { color:#d97706; }
+    .cal-day-val.medium { color:#ea580c; }
+    .cal-day-val.heavy  { color:#ef4444; }
+    .cal-day-icon { font-size:18px; line-height:1; }
 
-    /* history stats */
-    .hist-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:16px; }
-    .hsc { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:11px 8px; text-align:center; }
-    .hsv { font-size:18px; font-weight:800; color:var(--acc2); }
-    .hsl { font-size:10px; color:var(--muted); margin-top:3px; }
-
-    /* history list */
-    .hh { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .ebtns { display:flex; gap:7px; }
-    .esm { padding:6px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surf2); color:var(--text); font-size:12px; font-weight:600; cursor:pointer; }
-    .esm:hover { background:var(--border); }
-    .sdate { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin:16px 0 7px; }
-    .sdate:first-child { margin-top:0; }
+    /* calendar summary strip */
+    .cal-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px; }
+    .cs { background:var(--surf); border:1px solid var(--border); border-radius:13px; padding:11px 8px; text-align:center; box-shadow:var(--shadow); }
+    .csv { font-size:18px; font-weight:800; color:var(--acc); }
+    .csl { font-size:10px; color:var(--muted); margin-top:3px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .cs-sober .csv { color:var(--green); }
 
     /* settings */
-    .scard { background:var(--surf); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:18px; }
+    .scard { background:var(--surf); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:18px; box-shadow:var(--shadow); }
     .sr { display:flex; align-items:center; justify-content:space-between; padding:14px 15px; border-bottom:1px solid var(--border); gap:10px; }
     .sr:last-child { border-bottom:none; }
     .sl2 { font-size:15px; font-weight:500; }
@@ -144,15 +141,15 @@
     .to.on { background:var(--acc); color:#fff; }
     .bblock { display:block; width:100%; padding:13px; border-radius:12px; border:none; font-size:14px; font-weight:600; cursor:pointer; margin-bottom:9px; }
     .b-outline { background:var(--surf2); color:var(--text); border:1px solid var(--border); }
-    .b-red { background:rgba(239,68,68,.1); color:var(--red); border:1px solid rgba(239,68,68,.25); }
+    .b-red { background:rgba(239,68,68,.08); color:var(--red); border:1px solid rgba(239,68,68,.2); }
 
     /* sync badge */
     .sync-badge { font-size:11px; font-weight:600; padding:4px 10px; border-radius:10px; background:var(--surf2); border:1px solid var(--border); color:var(--muted); transition:all .3s; }
-    .sync-badge.ok  { color:var(--green); border-color:rgba(34,197,94,.3); }
-    .sync-badge.err { color:var(--red);   border-color:rgba(239,68,68,.3); }
-    .sync-badge.ing { color:var(--amber); border-color:rgba(245,158,11,.3); }
+    .sync-badge.ok  { color:var(--green); border-color:rgba(22,163,74,.3); background:rgba(22,163,74,.07); }
+    .sync-badge.err { color:var(--red);   border-color:rgba(239,68,68,.25); background:rgba(239,68,68,.07); }
+    .sync-badge.ing { color:var(--amber); border-color:rgba(217,119,6,.25); background:rgba(217,119,6,.07); }
 
-    /* gh token input row */
+    /* gh token input */
     .gh-row { padding:14px 15px; display:flex; flex-direction:column; gap:10px; }
     .gh-input-row { display:flex; gap:8px; }
     .gh-input { flex:1; background:var(--surf2); border:1px solid var(--border); border-radius:9px; padding:8px 11px; color:var(--text); font-size:16px; font-family:monospace; }
@@ -161,26 +158,25 @@
     .gh-btn:active { opacity:.8; }
     .gh-status { font-size:12px; color:var(--muted); min-height:16px; }
 
-    /* modal — safe-area padding at bottom */
-    .ov { position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:flex-end; z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
+    /* modal */
+    .ov { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:flex-end; z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
     .ov.open { opacity:1; pointer-events:all; }
-    .modal { width:100%; max-width:500px; margin:0 auto; background:var(--surf); border:1px solid var(--border); border-radius:22px 22px 0 0; padding:22px 18px calc(env(safe-area-inset-bottom,0px) + 28px); transform:translateY(110%); transition:transform .3s cubic-bezier(.32,1,.23,1); }
+    .modal { width:100%; max-width:500px; margin:0 auto; background:var(--surf); border:1px solid var(--border); border-radius:22px 22px 0 0; padding:22px 18px calc(env(safe-area-inset-bottom,0px) + 28px); transform:translateY(110%); transition:transform .3s cubic-bezier(.32,1,.23,1); box-shadow:0 -4px 24px rgba(0,0,0,.1); }
     .ov.open .modal { transform:translateY(0); }
     .mtitle { font-size:17px; font-weight:800; margin-bottom:18px; }
     .mf { margin-bottom:14px; }
     .mf label { display:block; font-size:11px; color:var(--muted); margin-bottom:5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
-    /* font-size 16px prevents iOS Safari auto-zoom */
     .mf input,.mf select { width:100%; background:var(--surf2); border:1px solid var(--border); border-radius:11px; padding:12px 13px; color:var(--text); font-size:16px; }
     .mf input:focus,.mf select:focus { outline:none; border-color:var(--acc); }
-    .mf select option { background:var(--surf2); }
+    .mf select option { background:var(--surf); }
     .mfrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .macts { display:flex; gap:10px; margin-top:18px; }
     .macts button { flex:1; padding:15px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; }
     .mcancel  { background:var(--surf2); color:var(--text); border:1px solid var(--border) !important; }
     .mconfirm { background:var(--acc); color:#fff; }
 
-    /* toast — above nav bar, safe-area aware */
-    .toast { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 72px); left:50%; transform:translateX(-50%) translateY(16px); background:var(--surf2); border:1px solid var(--border); border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600; z-index:100; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; white-space:nowrap; }
+    /* toast */
+    .toast { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 72px); left:50%; transform:translateX(-50%) translateY(16px); background:#1a1d2e; color:#fff; border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600; z-index:100; opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; white-space:nowrap; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -191,7 +187,6 @@
     <div class="hdr-title">🍺 DrinkTracker</div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="sync-badge" id="sync-badge" style="display:none"></div>
-      <div class="hdr-bac ok" id="hdr-bac">BAC 0.000%</div>
     </div>
   </header>
 
@@ -202,20 +197,17 @@
     ══════════════════════════════════════ -->
     <div class="tab active" id="tab-log">
 
-      <!-- BAC Hero -->
-      <div class="hero">
-        <div class="bac-num" id="bac-num">0.000<span class="bac-pct">%</span></div>
-        <div class="bac-sub">Blood Alcohol Content (Widmark)</div>
-        <div class="badge b-ok" id="bac-badge">Sober</div>
-        <div class="eta" id="eta">Ready — tap a drink below to start</div>
-      </div>
+      <!-- Sober day -->
+      <button class="sober-btn" id="sober-btn" onclick="toggleSober()">
+        <span style="font-size:20px">🌿</span> Sober Today
+      </button>
 
-      <!-- Today: Alcohol + Calories summary -->
+      <!-- Today: Alcohol + Calories -->
       <div class="log-stats">
         <div class="lsc">
           <div class="lsc-label">🧪 Alcohol</div>
           <div class="lsc-val"><span id="ls-alc">0</span><span class="lsc-unit">g</span></div>
-          <div class="lsc-bar"><div class="lsc-fill" id="ls-alc-bar" style="width:0%;background:var(--acc2)"></div></div>
+          <div class="lsc-bar"><div class="lsc-fill" id="ls-alc-bar" style="width:0%;background:var(--acc)"></div></div>
         </div>
         <div class="lsc">
           <div class="lsc-label">🔥 Calories</div>
@@ -224,7 +216,7 @@
         </div>
       </div>
 
-      <!-- Date context bar — tap to log for a different day -->
+      <!-- Date context bar -->
       <div class="dcbar" id="dcbar">
         <span class="dcbar-text" id="dcbar-text">📅 Today</span>
         <span class="dcbar-hint" id="dcbar-hint">tap to change</span>
@@ -262,87 +254,43 @@
     </div>
 
     <!-- ══════════════════════════════════════
-         GRAPH TAB
+         CALENDAR TAB
     ══════════════════════════════════════ -->
-    <div class="tab" id="tab-graph">
-      <div class="srow">
-        <div class="sc"><div class="sv" id="sg-drinks">0</div><div class="sl">Drinks</div></div>
-        <div class="sc"><div class="sv" id="sg-alc">0g</div><div class="sl">Alcohol</div></div>
-        <div class="sc"><div class="sv" id="sg-peak">0.000</div><div class="sl">Peak BAC</div></div>
-      </div>
-      <div class="cc">
-        <div class="cc-title">BAC Curve</div>
-        <div class="cc-sub">Estimated blood alcohol over time</div>
-        <div class="chart-wrap">
-          <canvas id="bac-chart"></canvas>
-        </div>
-      </div>
-      <div class="leg">
-        <span class="li">🟢 &lt;0.04% — Feeling it</span>
-        <span class="li">🟡 0.04–0.05% — Caution</span>
-        <span class="li">🔴 ≥0.05% — Over BC limit</span>
-        <span class="li" style="margin-left:auto">Widmark formula</span>
-      </div>
-    </div>
+    <div class="tab" id="tab-calendar">
 
-    <!-- ══════════════════════════════════════
-         HISTORY TAB
-    ══════════════════════════════════════ -->
-    <div class="tab" id="tab-history">
-
-      <!-- Period toggle -->
-      <div class="period-row">
-        <button class="pb on" id="ph-w" onclick="setPeriod('weekly',this)">This Week</button>
-        <button class="pb"    id="ph-m" onclick="setPeriod('monthly',this)">This Month</button>
+      <div class="cal-header">
+        <button class="cal-nav-btn" onclick="prevMonth()">‹</button>
+        <div class="cal-month-label" id="cal-month-label">October 2026</div>
+        <button class="cal-nav-btn" onclick="nextMonth()">›</button>
       </div>
 
-      <!-- Consumption chart -->
-      <div class="cc">
-        <div class="cc-head">
-          <div>
-            <div class="cc-title" id="hc-title">Weekly Consumption</div>
-            <div class="cc-sub">Pure alcohol (g) · daily bars + accumulated line</div>
-          </div>
-          <div style="text-align:right">
-            <div class="cc-total" id="hc-total">0g</div>
-            <div style="font-size:10px;color:var(--muted)" id="hc-target-label">/ 143g target</div>
-          </div>
+      <div class="cal-dow">
+        <div class="cal-dow-cell">Su</div>
+        <div class="cal-dow-cell">Mo</div>
+        <div class="cal-dow-cell">Tu</div>
+        <div class="cal-dow-cell">We</div>
+        <div class="cal-dow-cell">Th</div>
+        <div class="cal-dow-cell">Fr</div>
+        <div class="cal-dow-cell">Sa</div>
+      </div>
+
+      <div class="cal-grid" id="cal-grid"></div>
+
+      <div class="cal-summary">
+        <div class="cs">
+          <div class="csv" id="cs-alc">0g</div>
+          <div class="csl">Alcohol</div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="hist-chart"></canvas>
+        <div class="cs">
+          <div class="csv" id="cs-cal">0</div>
+          <div class="csl">Calories</div>
         </div>
-        <!-- chart legend -->
-        <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
-            <div style="width:10px;height:10px;background:#6366f1;border-radius:2px;opacity:.8"></div>Daily alcohol (g)
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
-            <div style="width:16px;height:2px;background:#f59e0b"></div>Accumulated
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
-            <div style="width:16px;height:2px;background:#22c55e;border-top:2px dashed #22c55e"></div>Target
-          </div>
+        <div class="cs cs-sober">
+          <div class="csv" id="cs-sober">0</div>
+          <div class="csl">🌟 Sober days</div>
         </div>
       </div>
 
-      <!-- Period summary stats -->
-      <div class="hist-stats">
-        <div class="hsc"><div class="hsv" id="hs-alc">0g</div><div class="hsl">Pure alcohol</div></div>
-        <div class="hsc"><div class="hsv" id="hs-days">0</div><div class="hsl">Drink days</div></div>
-        <div class="hsc"><div class="hsv" id="hs-cal">0</div><div class="hsl">kcal</div></div>
-      </div>
-
-      <!-- All sessions list -->
-      <div class="hh">
-        <div class="slabel" style="margin-bottom:0">All Sessions</div>
-        <div class="ebtns">
-          <button class="esm" onclick="exportCSV()">⬇ CSV</button>
-          <button class="esm" onclick="exportJSON()">⬇ JSON</button>
-        </div>
-      </div>
-      <div id="hist-list">
-        <div class="empty"><div class="ei">📋</div><p>No history yet</p></div>
-      </div>
     </div>
 
     <!-- ══════════════════════════════════════
@@ -415,7 +363,7 @@
         <div class="gh-row">
           <div>
             <div class="sl2">Personal Access Token</div>
-            <div class="ss">Commits data.json to udon-nao/drink-tracker on every change. Paste token once — data restores automatically if localStorage is ever cleared.</div>
+            <div class="ss">Commits data.json to udon-nao/drink-tracker on every change.</div>
           </div>
           <div class="gh-input-row">
             <input type="password" class="gh-input" id="s-ghtoken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
@@ -438,10 +386,9 @@
   </div><!-- /content -->
 
   <nav class="bnav">
-    <button class="nb active" onclick="goTab('log',this)">  <span class="ni">🍺</span>Log</button>
-    <button class="nb"        onclick="goTab('graph',this)"> <span class="ni">📊</span>Graph</button>
-    <button class="nb"        onclick="goTab('history',this)"><span class="ni">📋</span>History</button>
-    <button class="nb"        onclick="goTab('settings',this)"><span class="ni">⚙️</span>Settings</button>
+    <button class="nb active"  onclick="goTab('log',this)">      <span class="ni">🍺</span>Log</button>
+    <button class="nb"         onclick="goTab('calendar',this)">  <span class="ni">📅</span>Calendar</button>
+    <button class="nb"         onclick="goTab('settings',this)">  <span class="ni">⚙️</span>Settings</button>
   </nav>
 </div>
 
@@ -475,10 +422,7 @@
 <div class="ov" id="edit-ov" onclick="maybeCloseEdit(event)">
   <div class="modal">
     <div class="mtitle">✏️ Edit — <span id="edit-drink-name" style="color:var(--muted)"></span></div>
-    <div class="mf">
-      <label>Date</label>
-      <input type="date" id="edit-date">
-    </div>
+    <div class="mf"><label>Date</label><input type="date" id="edit-date"></div>
     <div class="mf">
       <label>Time (30-min slots)</label>
       <select id="edit-time"></select>
@@ -504,13 +448,13 @@ const DEFAULTS = {
   monthlyTarget: 620
 };
 
-let S = { drinks: [], settings: { ...DEFAULTS } };
-let bacChart  = null;
-let histChart = null;
-let histPeriod = 'weekly';
-
-/* Active log date — null means "today" */
+let S = { drinks: [], soberDays: [], settings: { ...DEFAULTS } };
 let activeLogDate = null;
+
+/* Calendar view state */
+const now = new Date();
+let calYear  = now.getFullYear();
+let calMonth = now.getMonth(); // 0-indexed
 
 /* ════════════════════════════════════
    DRINK CATALOGUE
@@ -530,7 +474,11 @@ const DRINKS = {
 function load() {
   try {
     const r = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (r) { S.drinks = r.drinks || []; S.settings = { ...DEFAULTS, ...(r.settings || {}) }; }
+    if (r) {
+      S.drinks     = r.drinks     || [];
+      S.soberDays  = r.soberDays  || [];
+      S.settings   = { ...DEFAULTS, ...(r.settings || {}) };
+    }
   } catch(e) {}
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
@@ -538,65 +486,36 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e)
 /* ════════════════════════════════════
    MATH
 ════════════════════════════════════ */
-/* BAC — Widmark (uses 0.789 g/mL ethanol density, physiologically accurate) */
-function calcBAC(at = new Date()) {
-  const { weight, sex } = S.settings;
-  const r = sex === 'male' ? 0.68 : 0.55;
-  let bac = 0;
-  for (const d of S.drinks) {
-    const h = (at - new Date(d.timestamp)) / 3600000;
-    if (h < 0) continue;
-    const g    = d.vol * (d.abv / 100) * 0.789;
-    const peak = g / (weight * 1000 * r) * 100;
-    bac += Math.max(0, peak - 0.015 * h);
-  }
-  return Math.max(0, bac);
-}
-
-/* Pure alcohol grams — user formula: vol × ABV% × 0.8 */
 function pureAlcohol(d) { return d.vol * (d.abv / 100) * 0.8; }
-
-/* Calories from alcohol: 1g ethanol ≈ 7.1 kcal */
 function kcal(d) { return pureAlcohol(d) * 7.1; }
+function weeklyTarget() { return Math.round(S.settings.monthlyTarget * 12 / 52); }
 
-function weeklyTarget() {
-  return Math.round(S.settings.monthlyTarget * 12 / 52);
-}
-
-function soberAt() {
-  if (calcBAC() < 0.005) return null;
-  const now = Date.now();
-  let lo = 0, hi = 24;
-  for (let i = 0; i < 40; i++) {
-    const mid = (lo + hi) / 2;
-    calcBAC(new Date(now + mid * 3600000)) > 0.005 ? (lo = mid) : (hi = mid);
-  }
-  return new Date(now + hi * 3600000);
-}
-
-/* Returns start/end of a calendar day */
 function getDayBounds(date) {
-  const s = new Date(date); s.setHours(0, 0, 0, 0);
-  const e = new Date(date); e.setHours(23, 59, 59, 999);
+  const s = new Date(date); s.setHours(0,0,0,0);
+  const e = new Date(date); e.setHours(23,59,59,999);
   return { s, e };
 }
-
-/* drinks in a calendar day */
 function drinksOnDay(date) {
   const { s, e } = getDayBounds(date);
   return S.drinks.filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; });
 }
-
-/* Timestamp to use when logging a drink — uses activeLogDate if set */
 function getLogTimestamp() {
   if (!activeLogDate) return new Date().toISOString();
-  const now = new Date();
-  return new Date(
-    activeLogDate.getFullYear(),
-    activeLogDate.getMonth(),
-    activeLogDate.getDate(),
-    now.getHours(), now.getMinutes(), now.getSeconds()
-  ).toISOString();
+  const n = new Date();
+  return new Date(activeLogDate.getFullYear(), activeLogDate.getMonth(), activeLogDate.getDate(), n.getHours(), n.getMinutes(), n.getSeconds()).toISOString();
+}
+
+/* ════════════════════════════════════
+   DATE KEY HELPERS
+════════════════════════════════════ */
+function dateToKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function activeDateKey() {
+  return dateToKey(activeLogDate || new Date());
+}
+function isSoberDay(key) {
+  return (S.soberDays || []).includes(key);
 }
 
 /* ════════════════════════════════════
@@ -606,17 +525,13 @@ function setLogDate(val) {
   if (!val) { clearLogDate(); return; }
   const [yr, mo, dy] = val.split('-').map(Number);
   activeLogDate = new Date(yr, mo - 1, dy);
-
   const label = activeLogDate.toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' });
   document.getElementById('dcbar-text').textContent = `📅 ${label}`;
   document.getElementById('dcbar-hint').style.display = 'none';
   document.getElementById('dcbar-x').style.display = '';
   document.getElementById('session-label').textContent = `${label}'s Session`;
-
-  updateTodayList();
-  updateLogStats();
+  updateTodayList(); updateLogStats(); updateSoberBtn();
 }
-
 function clearLogDate(e) {
   if (e) e.stopPropagation();
   activeLogDate = null;
@@ -625,83 +540,47 @@ function clearLogDate(e) {
   document.getElementById('dcbar-x').style.display = 'none';
   document.getElementById('dcbar-inp').value = '';
   document.getElementById('session-label').textContent = "Today's Session";
-  updateTodayList();
-  updateLogStats();
+  updateTodayList(); updateLogStats(); updateSoberBtn();
 }
 
 /* ════════════════════════════════════
-   LOG TAB — HERO
-════════════════════════════════════ */
-function updateHero() {
-  const bac = calcBAC();
-  const str = bac.toFixed(3);
-
-  document.getElementById('bac-num').innerHTML = str + '<span class="bac-pct">%</span>';
-
-  const hdr   = document.getElementById('hdr-bac');
-  const badge = document.getElementById('bac-badge');
-  const eta   = document.getElementById('eta');
-
-  hdr.textContent = 'BAC ' + str + '%';
-  /* BC thresholds: warn ≥0.04, over BC limit ≥0.05 */
-  hdr.className   = 'hdr-bac ' + (bac >= .05 ? 'over' : bac >= .04 ? 'warn' : 'ok');
-  badge.className = 'badge '   + (bac >= .05 ? 'b-over' : bac >= .04 ? 'b-warn' : 'b-ok');
-  badge.textContent = bac < .005 ? 'Sober' : bac < .04 ? 'Feeling it' : bac < .05 ? '⚠️ Approaching BC limit' : '🔴 Over BC limit (0.05%)';
-
-  const sb = soberAt();
-  if (sb) {
-    const ms = sb - Date.now();
-    const h  = Math.floor(ms / 3600000);
-    const m  = Math.round((ms % 3600000) / 60000);
-    eta.textContent = `Sober ~${sb.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })} (${h > 0 ? h+'h ' : ''}${m}m)`;
-  } else {
-    eta.textContent = 'Ready — tap a drink below to start';
-  }
-}
-
-/* ════════════════════════════════════
-   LOG TAB — ALCOHOL & CALORIES STATS
+   LOG TAB
 ════════════════════════════════════ */
 function updateLogStats() {
   const refDate = activeLogDate || new Date();
   const { s, e } = getDayBounds(refDate);
   const dayDrinks = S.drinks.filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; });
-
   const totalAlc = dayDrinks.reduce((acc, d) => acc + pureAlcohol(d), 0);
   const totalCal = dayDrinks.reduce((acc, d) => acc + kcal(d), 0);
-
-  /* daily target reference (weekly ÷ 7) */
   const dailyAlcRef = weeklyTarget() / 7;
   const dailyCalRef = dailyAlcRef * 7.1;
-
   document.getElementById('ls-alc').textContent = Math.round(totalAlc);
   document.getElementById('ls-cal').textContent = Math.round(totalCal);
-
   const alcPct = Math.min(100, (totalAlc / dailyAlcRef) * 100);
   const calPct = Math.min(100, (totalCal / dailyCalRef) * 100);
-
   const alcBar = document.getElementById('ls-alc-bar');
   const calBar = document.getElementById('ls-cal-bar');
   alcBar.style.width = alcPct + '%';
-  alcBar.style.background = alcPct >= 100 ? 'var(--red)' : alcPct >= 75 ? 'var(--amber)' : 'var(--acc2)';
+  alcBar.style.background = alcPct >= 100 ? 'var(--red)' : alcPct >= 75 ? 'var(--amber)' : 'var(--acc)';
   calBar.style.width = calPct + '%';
-  calBar.style.background = calPct >= 100 ? 'var(--red)' : calPct >= 75 ? 'var(--amber)' : 'var(--amber)';
 }
 
-/* ════════════════════════════════════
-   LOG TAB — SESSION LIST
-════════════════════════════════════ */
 function updateTodayList() {
   const refDate = activeLogDate || new Date();
   const { s, e } = getDayBounds(refDate);
   const dayDrinks = S.drinks
     .filter(d => { const t = new Date(d.timestamp); return t >= s && t <= e; })
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
   const el = document.getElementById('today-list');
+  const key = activeDateKey();
+  const sober = isSoberDay(key);
   const emptyMsg = activeLogDate ? 'No drinks logged on this day' : 'No drinks logged yet today';
   if (!dayDrinks.length) {
-    el.innerHTML = `<div class="empty"><div class="ei">🥤</div><p>${emptyMsg}</p></div>`;
+    if (sober) {
+      el.innerHTML = `<div class="sober-row"><div class="sober-badge">🌟 Sober day — great choice! <button class="sober-unsign" onclick="toggleSober()" title="Unmark">✕</button></div></div>`;
+    } else {
+      el.innerHTML = `<div class="empty"><div class="ei">🥤</div><p>${emptyMsg}</p></div>`;
+    }
     return;
   }
   el.innerHTML = dayDrinks.map(d => `
@@ -718,217 +597,124 @@ function updateTodayList() {
 }
 
 /* ════════════════════════════════════
-   GRAPH TAB — BAC CURVE
+   SOBER DAY
 ════════════════════════════════════ */
-function updateGraph() {
-  const midnight = new Date(); midnight.setHours(0,0,0,0);
-  const todayDrinks = S.drinks.filter(d => new Date(d.timestamp) >= midnight);
-  const totalAlc = todayDrinks.reduce((s,d) => s + pureAlcohol(d), 0);
-
-  document.getElementById('sg-drinks').textContent = todayDrinks.length;
-  document.getElementById('sg-alc').textContent    = Math.round(totalAlc) + 'g';
-
-  const now = Date.now();
-  let tStart = now - 2 * 3600000;
-  if (todayDrinks.length) {
-    const earliest = Math.min(...todayDrinks.map(d => +new Date(d.timestamp)));
-    tStart = Math.min(earliest - 20 * 60000, tStart);
-  }
-  const sb   = soberAt();
-  const tEnd = sb ? Math.max(+sb + 30 * 60000, now + 3600000) : now + 2 * 3600000;
-
-  const labels = [], vals = [];
-  for (let t = tStart; t <= tEnd; t += 10 * 60000) {
-    vals.push(calcBAC(new Date(t)));
-    labels.push(new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }));
-  }
-
-  document.getElementById('sg-peak').textContent = (vals.length ? Math.max(...vals) : 0).toFixed(3);
-
-  if (bacChart) { bacChart.destroy(); bacChart = null; }
-  bacChart = new Chart(document.getElementById('bac-chart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label:'BAC %', data:vals, borderColor:'#818cf8', backgroundColor:'rgba(129,140,248,.15)', borderWidth:2.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
-        { label:'BC limit (0.05%)', data:labels.map(()=>0.05), borderColor:'#ef4444', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:{ duration:400 },
-      interaction:{ mode:'index', intersect:false },
-      plugins: {
-        legend:{ labels:{ color:'#8892a4', boxWidth:12, font:{ size:11 } } },
-        tooltip:{ backgroundColor:'#1f2438', borderColor:'#252a3d', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#8892a4',
-          callbacks:{ label: c => c.datasetIndex===0 ? ` BAC: ${c.raw.toFixed(3)}%` : ` BC limit: 0.050%` } }
-      },
-      scales: {
-        x:{ grid:{ color:'rgba(37,42,61,.8)' }, ticks:{ color:'#8892a4', font:{ size:10 }, maxTicksLimit:7 } },
-        y:{ min:0, grid:{ color:'rgba(37,42,61,.8)' }, ticks:{ color:'#8892a4', font:{ size:10 }, callback: v => v.toFixed(3)+'%' } }
-      }
-    }
-  });
-}
-
-/* ════════════════════════════════════
-   HISTORY TAB — CHART
-════════════════════════════════════ */
-function setPeriod(p, btn) {
-  histPeriod = p;
-  document.querySelectorAll('.pb').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  updateHistChart();
-}
-
-function updateHistChart() {
-  const now = new Date();
-  let days, labels;
-
-  if (histPeriod === 'weekly') {
-    /* Mon–Sun of current ISO week */
-    const dow = (now.getDay() + 6) % 7; // 0=Mon
-    const mon = new Date(now); mon.setDate(now.getDate() - dow); mon.setHours(0,0,0,0);
-    days   = Array.from({ length:7 }, (_,i) => { const d = new Date(mon); d.setDate(mon.getDate()+i); return d; });
-    labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function toggleSober() {
+  if (!S.soberDays) S.soberDays = [];
+  const key = activeDateKey();
+  if (isSoberDay(key)) {
+    S.soberDays = S.soberDays.filter(k => k !== key);
+    toast('Sober day unmarked');
   } else {
-    /* All days in current calendar month */
-    const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-    days   = Array.from({ length:dim }, (_,i) => new Date(now.getFullYear(), now.getMonth(), i+1));
-    labels = days.map(d => d.getDate().toString());
+    S.soberDays.push(key);
+    toast('🌟 Sober day logged!');
   }
-
-  const dailyAlc = days.map(d => drinksOnDay(d).reduce((s,dr) => s + pureAlcohol(dr), 0));
-  const accumulated = dailyAlc.reduce((acc, g, i) => { acc.push((acc[i-1]||0)+g); return acc; }, []);
-  const target = histPeriod === 'weekly' ? weeklyTarget() : S.settings.monthlyTarget;
-  const targetLine = labels.map(() => target);
-
-  const totalAlc   = accumulated[accumulated.length-1] || 0;
-  const overTarget = totalAlc > target;
-  const drinkDays  = dailyAlc.filter(g => g > 0).length;
-
-  /* drinks in period for calorie total */
-  const periodStart = days[0];
-  const periodEnd   = new Date(days[days.length-1]); periodEnd.setHours(23,59,59,999);
-  const periodDrinks = S.drinks.filter(d => { const t=new Date(d.timestamp); return t>=periodStart && t<=periodEnd; });
-  const totalKcal = periodDrinks.reduce((s,d) => s + kcal(d), 0);
-
-  /* update stat cards */
-  document.getElementById('hc-title').textContent       = histPeriod === 'weekly' ? 'This Week' : 'This Month';
-  document.getElementById('hc-target-label').textContent = `/ ${target}g target`;
-  document.getElementById('hc-total').textContent        = Math.round(totalAlc) + 'g';
-  document.getElementById('hc-total').style.color        = overTarget ? 'var(--red)' : 'var(--acc2)';
-  document.getElementById('hs-alc').textContent          = Math.round(totalAlc) + 'g';
-  document.getElementById('hs-alc').style.color          = overTarget ? 'var(--red)' : 'var(--acc2)';
-  document.getElementById('hs-days').textContent         = drinkDays;
-  document.getElementById('hs-cal').textContent          = Math.round(totalKcal);
-
-  if (histChart) { histChart.destroy(); histChart = null; }
-  histChart = new Chart(document.getElementById('hist-chart').getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Daily (g)',
-          data: dailyAlc,
-          backgroundColor: 'rgba(99,102,241,0.75)',
-          borderRadius: 4,
-          order: 3
-        },
-        {
-          type: 'line',
-          label: 'Accumulated (g)',
-          data: accumulated,
-          borderColor: overTarget ? '#ef4444' : '#f59e0b',
-          backgroundColor: 'transparent',
-          borderWidth: 2,
-          tension: 0.2,
-          pointRadius: histPeriod === 'weekly' ? 3 : 0,
-          pointHoverRadius: 4,
-          pointBackgroundColor: overTarget ? '#ef4444' : '#f59e0b',
-          order: 1
-        },
-        {
-          type: 'line',
-          label: `Target (${target}g)`,
-          data: targetLine,
-          borderColor: 'rgba(34,197,94,0.7)',
-          backgroundColor: 'transparent',
-          borderWidth: 1.5,
-          borderDash: [5,4],
-          pointRadius: 0,
-          order: 2
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode:'index', intersect:false },
-      plugins: {
-        legend: { display:false },
-        tooltip: {
-          backgroundColor:'#1f2438', borderColor:'#252a3d', borderWidth:1,
-          titleColor:'#e2e8f0', bodyColor:'#8892a4',
-          callbacks: {
-            label: c => {
-              if (c.datasetIndex===0) return ` Daily: ${c.raw.toFixed(1)}g`;
-              if (c.datasetIndex===1) return ` Total: ${c.raw.toFixed(1)}g`;
-              return ` Target: ${target}g`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color:'rgba(37,42,61,.8)' },
-          ticks: { color:'#8892a4', font:{ size:9 }, maxTicksLimit: histPeriod==='monthly' ? 16 : 7 }
-        },
-        y: {
-          min: 0,
-          suggestedMax: target * 1.1,
-          grid: { color:'rgba(37,42,61,.8)' },
-          ticks: { color:'#8892a4', font:{ size:9 }, callback: v => v+'g' }
-        }
-      }
-    }
-  });
+  save(); scheduleSync(); updateSoberBtn(); updateTodayList(); renderCalendar();
+}
+function updateSoberBtn() {
+  const btn = document.getElementById('sober-btn');
+  if (!btn) return;
+  const on = isSoberDay(activeDateKey());
+  btn.className = 'sober-btn' + (on ? ' sober-on' : '');
+  btn.innerHTML = on
+    ? '<span style="font-size:20px">🌿</span> Sober Day ✓'
+    : '<span style="font-size:20px">🌿</span> Sober Today';
 }
 
 /* ════════════════════════════════════
-   HISTORY TAB — SESSION LIST
+   CALENDAR TAB
 ════════════════════════════════════ */
-function updateHistory() {
-  const sorted = [...S.drinks].sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp));
-  const el = document.getElementById('hist-list');
-  if (!sorted.length) { el.innerHTML='<div class="empty"><div class="ei">📋</div><p>No history yet</p></div>'; return; }
-  const grp = {};
-  for (const d of sorted) {
-    const k = new Date(d.timestamp).toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    (grp[k]=grp[k]||[]).push(d);
-  }
-  let html = '';
-  for (const [date, drinks] of Object.entries(grp)) {
-    const totalAlc = drinks.reduce((s,d)=>s+pureAlcohol(d),0);
-    const totalCal = drinks.reduce((s,d)=>s+kcal(d),0);
-    html += `<div class="sdate">${date} · ${Math.round(totalAlc)}g · ${Math.round(totalCal)} kcal</div><div class="card">`;
-    html += drinks.map(d=>`
-      <div class="drow">
-        <div class="dri">${d.icon}</div>
-        <div class="dinfo">
-          <div class="dname">${d.name}</div>
-          <div class="dmeta">${d.vol}ml · ${d.abv}% · ${pureAlcohol(d).toFixed(1)}g</div>
-        </div>
-        <div class="dtime">${fmt(new Date(d.timestamp))}</div>
-        <button class="ebtn2" onclick="editDrink('${d.id}')">✏️</button>
-        <button class="xbtn"  onclick="del('${d.id}')">✕</button>
-      </div>`).join('');
-    html += '</div>';
-  }
-  el.innerHTML = html;
+function prevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
 }
+function nextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  /* Month label */
+  const monthName = new Date(calYear, calMonth, 1).toLocaleDateString([], { month:'long', year:'numeric' });
+  document.getElementById('cal-month-label').textContent = monthName;
+
+  /* Build day cells */
+  const firstDow = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  const grid = document.getElementById('cal-grid');
+  let html = '';
+
+  /* Leading empty cells */
+  for (let i = 0; i < firstDow; i++) {
+    html += '<div class="cal-cell other-month"></div>';
+  }
+
+  /* Month summary accumulators */
+  let monthAlc = 0, monthCal = 0, monthSober = 0;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(calYear, calMonth, day);
+    date.setHours(0,0,0,0);
+    const key = dateToKey(date);
+    const dayDrinks = drinksOnDay(date);
+    const totalAlc = dayDrinks.reduce((s, d) => s + pureAlcohol(d), 0);
+    const totalCal = dayDrinks.reduce((s, d) => s + kcal(d), 0);
+    const sober = isSoberDay(key);
+    const isFuture = date > today;
+    const isToday = date.getTime() === today.getTime();
+
+    monthAlc += totalAlc;
+    monthCal += totalCal;
+    if (sober && totalAlc === 0) monthSober++;
+
+    let cellClass = 'cal-cell';
+    if (isToday)  cellClass += ' is-today';
+    if (isFuture) cellClass += ' is-future';
+    if (totalAlc > 0) cellClass += ' has-drink';
+    else if (sober)   cellClass += ' has-sober';
+
+    let innerContent = '';
+    if (totalAlc > 0) {
+      const alcRound = Math.round(totalAlc);
+      const valClass = alcRound >= 40 ? 'heavy' : alcRound >= 20 ? 'medium' : 'light';
+      innerContent = `<div class="cal-day-val ${valClass}">${alcRound}g</div>`;
+    } else if (sober) {
+      innerContent = `<div class="cal-day-icon">🌟</div>`;
+    }
+
+    html += `<div class="${cellClass}">
+      <div class="cal-day-num">${day}</div>
+      ${innerContent}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+
+  /* Summary strip */
+  document.getElementById('cs-alc').textContent   = Math.round(monthAlc) + 'g';
+  document.getElementById('cs-cal').textContent   = Math.round(monthCal);
+  document.getElementById('cs-sober').textContent = monthSober;
+}
+
+/* Swipe to change month */
+let touchX0 = 0, touchY0 = 0;
+document.addEventListener('DOMContentLoaded', () => {
+  const grid = document.getElementById('cal-grid');
+  grid.addEventListener('touchstart', e => { touchX0 = e.touches[0].clientX; touchY0 = e.touches[0].clientY; }, { passive:true });
+  grid.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX0;
+    const dy = e.changedTouches[0].clientY - touchY0;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+      dx < 0 ? nextMonth() : prevMonth();
+    }
+  });
+});
 
 /* ════════════════════════════════════
    SETTINGS UI
@@ -944,7 +730,6 @@ function updateSettingsUI() {
   document.getElementById('tog-m').className = 'to'+(s.sex==='male'?   ' on':'');
   document.getElementById('tog-f').className = 'to'+(s.sex==='female'? ' on':'');
   document.getElementById('weekly-target-note').textContent = `Weekly: ${weeklyTarget()}g`;
-  /* quick-add labels */
   document.getElementById('lbl-l355').textContent = `355ml · ${s.lagerAbv}%`;
   document.getElementById('lbl-l473').textContent = `473ml · ${s.lagerAbv}%`;
   document.getElementById('lbl-ipa').textContent  = `473ml · ${s.ipaAbv}%`;
@@ -962,7 +747,6 @@ function quickAdd(type) {
   save(); scheduleSync(); refreshLog();
   toast(`${def.icon} ${def.name} added!`);
 }
-
 function addCustom() {
   const name = (document.getElementById('c-name').value.trim()||'Custom').slice(0,40);
   const type = document.getElementById('c-type').value;
@@ -974,23 +758,19 @@ function addCustom() {
   save(); scheduleSync(); closeModal(); refreshLog();
   toast(`${def.icon} ${name} added!`);
 }
-
 function del(id) {
-  S.drinks = S.drinks.filter(d => d.id!==id);
-  save(); scheduleSync(); refreshLog(); updateHistory();
+  S.drinks = S.drinks.filter(d => d.id !== id);
+  save(); scheduleSync(); refreshLog(); renderCalendar();
   toast('Drink removed');
 }
-
 function setSetting(k, v) { S.settings[k]=v; save(); scheduleSync(); updateSettingsUI(); refreshLog(); }
-function setSex(s) { S.settings.sex=s; save(); scheduleSync(); updateSettingsUI(); updateHero(); }
-
+function setSex(s) { S.settings.sex=s; save(); scheduleSync(); updateSettingsUI(); }
 function clearAll() {
   if (!confirm('Delete ALL drink history? This cannot be undone.')) return;
-  S.drinks=[]; save(); scheduleSync(); refreshLog(); updateHistory();
+  S.drinks=[]; S.soberDays=[]; save(); scheduleSync(); refreshLog(); renderCalendar();
   toast('All data cleared');
 }
-
-function refreshLog() { updateHero(); updateLogStats(); updateTodayList(); updateSettingsUI(); }
+function refreshLog() { updateLogStats(); updateTodayList(); updateSettingsUI(); updateSoberBtn(); }
 
 /* ════════════════════════════════════
    EXPORT
@@ -1018,8 +798,7 @@ function goTab(id, btn) {
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
-  if (id==='graph')   setTimeout(updateGraph,      80);
-  if (id==='history') setTimeout(()=>{ updateHistory(); updateHistChart(); }, 80);
+  if (id === 'calendar') setTimeout(renderCalendar, 60);
 }
 
 /* ════════════════════════════════════
@@ -1054,8 +833,8 @@ const GH_FILE      = 'data.json';
 const GH_API       = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
 
 let ghToken   = localStorage.getItem(GH_TOKEN_KEY) || '';
-let ghSha     = null;   // SHA of current data.json — required by GitHub API for updates
-let syncTimer = null;   // debounce handle
+let ghSha     = null;
+let syncTimer = null;
 
 function setSyncBadge(state, text) {
   const el = document.getElementById('sync-badge');
@@ -1072,13 +851,14 @@ async function ghLoad() {
     const res = await fetch(GH_API, {
       headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
     });
-    if (res.status === 404) { setSyncBadge('', '☁ Ready'); return false; } // file doesn't exist yet
+    if (res.status === 404) { setSyncBadge('', '☁ Ready'); return false; }
     if (!res.ok) throw new Error(res.status);
     const json = await res.json();
     ghSha = json.sha;
     const data = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
-    if (data.drinks)   S.drinks   = data.drinks;
-    if (data.settings) S.settings = { ...DEFAULTS, ...data.settings };
+    if (data.drinks)    S.drinks    = data.drinks;
+    if (data.soberDays) S.soberDays = data.soberDays;
+    if (data.settings)  S.settings  = { ...DEFAULTS, ...data.settings };
     save();
     setSyncBadge('ok', '✓ Restored');
     setGhStatusUI(`Loaded from GitHub — ${S.drinks.length} drinks restored`);
@@ -1095,7 +875,6 @@ async function ghSave() {
   setSyncBadge('ing', '↑ Saving…');
   try {
     const payload = JSON.stringify(S, null, 2);
-    /* btoa needs latin1 — encode UTF-8 first */
     const content = btoa(unescape(encodeURIComponent(payload)));
     const body = {
       message: `DrinkTracker sync ${new Date().toISOString().slice(0,16).replace('T',' ')}`,
@@ -1104,11 +883,7 @@ async function ghSave() {
     };
     const res = await fetch(GH_API, {
       method: 'PUT',
-      headers: {
-        Authorization: `token ${ghToken}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error(res.status);
@@ -1124,20 +899,25 @@ async function ghSave() {
   }
 }
 
-/* Daily backup — only commits to GitHub once per calendar day */
-const GH_SYNC_DATE_KEY = 'dt_last_gh_sync';
+/* Last sync timestamp (ms) — persisted so it survives page refreshes */
+const GH_LAST_SYNC_TS_KEY = 'dt_last_sync_ts';
+const MIN_SYNC_MS = 5 * 60 * 1000; // 5 minutes between commits
+
+function lastSyncTs() { return parseInt(localStorage.getItem(GH_LAST_SYNC_TS_KEY) || '0', 10); }
+function markSynced() { localStorage.setItem(GH_LAST_SYNC_TS_KEY, Date.now().toString()); }
+function needsSync()  { return ghToken && (Date.now() - lastSyncTs() >= MIN_SYNC_MS); }
 
 function scheduleSync() {
-  /* Always persist to localStorage immediately (sync) */
-  /* GitHub commit: debounce 3s, then only if not yet synced today */
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
-    const today = new Date().toDateString();
-    if (localStorage.getItem(GH_SYNC_DATE_KEY) !== today) {
-      ghSave().then(() => localStorage.setItem(GH_SYNC_DATE_KEY, today));
-    }
+    if (needsSync()) ghSave().then(markSynced);
   }, 3000);
 }
+
+/* Sync whenever the user switches back to this tab / reopens the app */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && needsSync()) ghSave().then(markSynced);
+});
 
 /* ════════════════════════════════════
    EDIT DRINK TIME
@@ -1163,20 +943,13 @@ function editDrink(id) {
   const d = S.drinks.find(x => x.id === id);
   if (!d) return;
   editingId = id;
-
   const dt = new Date(d.timestamp);
-
-  /* Date field */
   document.getElementById('edit-date').value = dt.toISOString().slice(0,10);
-
-  /* Round to nearest 30-min slot */
-  const rawMin  = dt.getMinutes();
-  const roundM  = Math.round(rawMin / 30) * 30;
-  const slotH   = roundM === 60 ? (dt.getHours() + 1) % 24 : dt.getHours();
-  const slotM   = roundM === 60 ? 0 : roundM;
-  document.getElementById('edit-time').value =
-    `${String(slotH).padStart(2,'0')}:${String(slotM).padStart(2,'0')}`;
-
+  const rawMin = dt.getMinutes();
+  const roundM = Math.round(rawMin / 30) * 30;
+  const slotH  = roundM === 60 ? (dt.getHours() + 1) % 24 : dt.getHours();
+  const slotM  = roundM === 60 ? 0 : roundM;
+  document.getElementById('edit-time').value = `${String(slotH).padStart(2,'0')}:${String(slotM).padStart(2,'0')}`;
   document.getElementById('edit-drink-name').textContent = d.name;
   document.getElementById('edit-ov').classList.add('open');
 }
@@ -1184,22 +957,19 @@ function editDrink(id) {
 function saveEditDrink() {
   const d = S.drinks.find(x => x.id === editingId);
   if (!d) { closeEditModal(); return; }
-
   const dateVal = document.getElementById('edit-date').value;
   const timeVal = document.getElementById('edit-time').value;
   if (!dateVal || !timeVal) return;
-
   const [yr, mo, dy] = dateVal.split('-').map(Number);
   const [hh, mm]     = timeVal.split(':').map(Number);
   d.timestamp = new Date(yr, mo - 1, dy, hh, mm, 0).toISOString();
-
-  save(); scheduleSync(); refreshLog(); updateHistory();
+  save(); scheduleSync(); refreshLog(); renderCalendar();
   closeEditModal();
   toast('Time updated');
 }
 
-function closeEditModal()    { document.getElementById('edit-ov').classList.remove('open'); editingId = null; }
-function maybeCloseEdit(e)   { if (e.target.id === 'edit-ov') closeEditModal(); }
+function closeEditModal()  { document.getElementById('edit-ov').classList.remove('open'); editingId = null; }
+function maybeCloseEdit(e) { if (e.target.id === 'edit-ov') closeEditModal(); }
 
 function setGhStatusUI(msg) {
   const el = document.getElementById('gh-status');
@@ -1214,7 +984,7 @@ function saveGhToken() {
   localStorage.setItem(GH_TOKEN_KEY, ghToken);
   input.value = '';
   setGhStatusUI('Token saved — testing connection…');
-  ghLoad().then(ok => { if (!ok) ghSave(); }); // load existing data or create first backup
+  ghLoad().then(ok => { if (!ok) ghSave(); });
 }
 
 function updateGhSettingsUI() {
@@ -1232,22 +1002,17 @@ function updateGhSettingsUI() {
 ════════════════════════════════════ */
 load();
 refreshLog();
+updateSoberBtn();
 populateTimeSlots();
 updateGhSettingsUI();
 
-/* On startup: load from GitHub (restores data if localStorage was wiped),
-   then do today's backup if not yet done today */
 if (ghToken) {
   ghLoad().then(loaded => {
-    if (loaded) refreshLog();
-    const today = new Date().toDateString();
-    if (localStorage.getItem(GH_SYNC_DATE_KEY) !== today) {
-      ghSave().then(() => localStorage.setItem(GH_SYNC_DATE_KEY, today));
-    }
+    if (loaded) { refreshLog(); renderCalendar(); }
+    /* Always save on startup to ensure GitHub reflects the latest local state */
+    ghSave().then(markSynced);
   });
 }
-
-setInterval(updateHero, 60000);
 </script>
 </body>
 </html>
