@@ -106,7 +106,9 @@
     .cal-dow-cell { text-align:center; font-size:11px; font-weight:700; color:var(--muted); padding:4px 0; text-transform:uppercase; letter-spacing:.04em; }
 
     .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; user-select:none; touch-action:pan-y; }
-    .cal-cell { background:var(--surf); border:1px solid var(--border); border-radius:10px; min-height:54px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:default; transition:transform .1s; padding:4px 2px; }
+    .cal-cell { background:var(--surf); border:1px solid var(--border); border-radius:10px; min-height:54px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:default; transition:background .15s,transform .1s; padding:4px 2px; }
+    .cal-cell[onclick] { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .cal-cell[onclick]:active { transform:scale(.93); background:var(--surf2); }
     .cal-cell.other-month { background:transparent; border-color:transparent; }
     .cal-cell.is-today { border-color:var(--acc); border-width:2px; }
     .cal-cell.is-today .cal-day-num { color:var(--acc); font-weight:800; }
@@ -688,7 +690,8 @@ function renderCalendar() {
       innerContent = `<div class="cal-day-icon">🌟</div>`;
     }
 
-    html += `<div class="${cellClass}">
+    const clickAttr = isFuture ? '' : ` onclick="openDayFromCal(${calYear},${calMonth+1},${day})"`;
+    html += `<div class="${cellClass}"${clickAttr}>
       <div class="cal-day-num">${day}</div>
       ${innerContent}
     </div>`;
@@ -799,6 +802,21 @@ function goTab(id, btn) {
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if (id === 'calendar') setTimeout(renderCalendar, 60);
+}
+
+function openDayFromCal(yr, mo, dy) {
+  /* Set the log date to the tapped calendar day */
+  const pad = n => String(n).padStart(2,'0');
+  const val = `${yr}-${pad(mo)}-${pad(dy)}`;
+  setLogDate(val);
+  /* Switch to Log tab */
+  const logBtn = document.querySelector('.nb[onclick*="log"]');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-log').classList.add('active');
+  if (logBtn) logBtn.classList.add('active');
+  /* Scroll log to top */
+  document.querySelector('.content').scrollTop = 0;
 }
 
 /* ════════════════════════════════════
